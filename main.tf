@@ -1,3 +1,4 @@
+
 resource "aws_instance" "Terraform_instance" {
 	count         = var.instance_count
 	ami           = var.ami_image
