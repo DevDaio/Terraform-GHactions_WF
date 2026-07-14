@@ -32,19 +32,19 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/mein_schlüssel
           chmod 600 ~/.ssh/mein_schlüssel
-          for ip in $(terraform output -json public_ips | jq -r ".[]"); do
+          for ip in $(terraform output -json public_ip | jq -r ".[]"); do
           ssh-keyscan -H $ip >> ~/.ssh/known_hosts
           done
 
       - name: install nginx
         run: |
-          for ip in $(terraform output -json public_ips | jq -r ".[]"); do
+          for ip in $(terraform output -json public_ip | jq -r ".[]"); do
             ssh -i ~/.ssh/mein_schlüssel ubuntu@$ip "sudo apt update && sudo apt install nginx -y"
           done
 
       - name: deploy website
         run: |
-                for ip in $(terraform output -json public_ips | jq -r ".[]"); do
+                for ip in $(terraform output -json public_ip | jq -r ".[]"); do
                 scp -i ~/.ssh/mein_schlüssel index.html ubuntu@$ip:/home/ubuntu/index.html
                 ssh -i ~/.ssh/mein_schlüssel ubuntu@$ip "sudo cp /home/ubuntu/index.html /var/www/html/index.html"
                 done
