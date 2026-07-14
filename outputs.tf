@@ -1,3 +1,3 @@
-output "instancce_ip" {
-	value = aws_ec2_instance.Terraform.*.public_ip
+output "instance_ip" {
+	value = aws_instance.Terraform_instance[*].public_ip
 }
