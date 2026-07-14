@@ -25,6 +25,7 @@ resource "aws_instance" "Terraform_instance" {
 	count         = var.instance_count
 	ami           = var.ami_image
 	instance_type = var.instance_type
+	key_name              = "Terraform_Deploy_Key"
 	vpc_security_group_ids = [aws_security_group.terraform_sg.id]
 
 	tags = {
