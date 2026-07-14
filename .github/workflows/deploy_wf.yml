@@ -28,18 +28,22 @@ jobs:
 
       - name: ssh setup
         run: |
-          sleep 15
+          sleep 30
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/mein_schlüssel
           chmod 600 ~/.ssh/mein_schlüssel
           for ip in $(terraform output -json public_ip | jq -r ".[]"); do
-          ssh-keyscan -H $ip >> ~/.ssh/known_hosts
+            ssh-keyscan -H $ip >> ~/.ssh/known_hosts || echo "ssh-keyscan failed for $ip, continuing..."
           done
 
       - name: install nginx
         run: |
           for ip in $(terraform output -json public_ip | jq -r ".[]"); do
-            ssh -i ~/.ssh/mein_schlüssel ubuntu@$ip "sudo apt update && sudo apt install nginx -y"
+            for retry in 1 2 3; do
+              ssh -i ~/.ssh/mein_schlüssel -o StrictHostKeyChecking=no ubuntu@$ip "sudo apt update && sudo apt install nginx -y" && break
+              echo "SSH to $ip failed (attempt $retry), retrying in 10s..."
+              sleep 10
+            done
           done
 
       - name: deploy website
