@@ -49,6 +49,5 @@ jobs:
       - name: deploy website
         run: |
                 for ip in $(terraform output -json public_ip | jq -r ".[]"); do
-                scp -i ~/.ssh/mein_schlüssel index.html ubuntu@$ip:/home/ubuntu/index.html
-                ssh -i ~/.ssh/mein_schlüssel ubuntu@$ip "sudo cp /home/ubuntu/index.html /var/www/html/index.html"
+                  cat index.html | ssh -i ~/.ssh/mein_schlüssel -o StrictHostKeyChecking=no ubuntu@$ip "sudo tee /var/www/html/index.html > /dev/null"
                 done
