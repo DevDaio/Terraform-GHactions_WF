@@ -39,15 +39,26 @@ jobs:
       - name: install nginx
         run: |
           for ip in $(terraform output -json public_ip | jq -r ".[]"); do
+            ok=false
             for retry in 1 2 3; do
-              ssh -i ~/.ssh/mein_schlüssel -o StrictHostKeyChecking=no ubuntu@$ip "sudo apt update && sudo apt install nginx -y" && break
+              if ssh -i ~/.ssh/mein_schlüssel -o StrictHostKeyChecking=no ubuntu@$ip "sudo apt update && sudo apt install nginx -y"; then
+                ok=true
+                break
+              fi
               echo "SSH to $ip failed (attempt $retry), retrying in 10s..."
               sleep 10
             done
+            if [ "$ok" = false ]; then
+              echo "Failed to install nginx on $ip after 3 attempts"
+              exit 1
+            fi
           done
 
       - name: deploy website
         run: |
-                for ip in $(terraform output -json public_ip | jq -r ".[]"); do
-                  cat index.html | ssh -i ~/.ssh/mein_schlüssel -o StrictHostKeyChecking=no ubuntu@$ip "sudo tee /var/www/html/index.html > /dev/null"
-                done
+          for ip in $(terraform output -json public_ip | jq -r ".[]"); do
+            if ! cat index.html | ssh -i ~/.ssh/mein_schlüssel -o StrictHostKeyChecking=no ubuntu@$ip "sudo tee /var/www/html/index.html > /dev/null"; then
+              echo "Failed to deploy to $ip"
+              exit 1
+            fi
+          done
