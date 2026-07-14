@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terraform + Nginx Test</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding: 4em; background: #1a1a2e; color: #eee; }
+        h1 { color: #e94560; }
+        .ok { color: #4ecca3; font-size: 1.5em; }
+    </style>
+</head>
+<body>
+    <h1>Terraform EC2 + Nginx</h1>
+    <p class="ok">✓ Nginx erfolgreich deployed</p>
+    <p>Instance: <span id="host"></span></p>
+    <script>document.getElementById('host').textContent = window.location.hostname;</script>
+</body>
+</html>
